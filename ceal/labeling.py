@@ -78,9 +78,12 @@ class ImageViewer():
         self.img = ImageTk.PhotoImage(file=self.Images[self.image_idx])
         self.canvas.itemconfig(self.image_on_canvas, image=self.img)
 
-if __name__ == '__main__':
+def main():
     files = glob('../data/labeling_scheduled/'+'*.jpg')
     window = tk.Tk()
     window.title("Images which needs labeling")
     ImageViewer(window, files)
     window.mainloop()
+
+if __name__ == '__main__':
+    main()

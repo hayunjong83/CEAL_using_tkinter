@@ -60,14 +60,14 @@ class AlexNet(object):
                 print('Train Epoch: {} [ {}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data),
                     len(train_loader.sampler.indices),
-                    100. * batch_idx / len(train_loader.sampler.indices),
+                    100. * (batch_idx * len(data)) / len(train_loader.sampler.indices),
                     loss.item()))
         
         if valid_loader:
             acc = self.evaluate(test_loader=valid_loader)
             print('Accuracy on the valid dataset {}'.format(acc))
         
-        #print('====> Epoch: {} Average loss: {:.4f}'.format(epoch, train_loss / data_size))
+        print('====> Epoch: {} Average loss: {:.4f}'.format(epoch, train_loss / data_size))
     
     def train(self, epochs: int, train_loader: DataLoader,valid_loader: DataLoader = None) -> None:
         self.model.to(self.device)
@@ -110,7 +110,7 @@ class AlexNet(object):
                 data = data.to(self.device)
                 data = data.float()
                 outputs = self.model(data)
-                outptus = softmax(outputs)
+                #outptus = softmax(outputs, dim=1)
                 predict_results = np.concatenate((predict_results, outputs.cpu().numpy()))
         
         return predict_results

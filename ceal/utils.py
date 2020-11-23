@@ -18,31 +18,6 @@ def least_confidence(pred_prob: np.ndarray,
 
 def margin_sampling(pred_prob: np.ndarray, k: int) -> Tuple[np.ndarray,
                                                             np.ndarray]:
-    f"""
-    Rank all the unlabeled samples in an ascending order according to the
-    equation 3
-    ----------
-    pred_prob : np.ndarray
-        prediction probability of x_i with dimension (batch x n_class)
-    k : int
-        most informative samples
-    Returns
-    -------
-    np.array with dimension (K x 1)  containing the indices of the K
-        most informative samples.
-    np.array with dimension (K x 3) containing the indices, the predicted class
-        and the `ms_i` of the k most informative samples
-        column 1: indices
-        column 2: predicted class.
-        column 3: margin sampling
-    """
-    assert np.round(pred_prob.sum(1).sum()) == pred_prob.shape[
-        0], "pred_prob is not " \
-            "a probability" \
-            " distribution"
-    assert 0 < k <= pred_prob.shape[0], "invalid k value k should be >0 &" \
-                                        "k <=  pred_prob.shape[0"
-    # Sort pred_prob to get j1 and j2
     size = len(pred_prob)
     margin = np.diff(np.abs(np.sort(pred_prob, axis=1)[:, ::-1][:, :2]))
     pred_class = np.argmax(pred_prob, axis=1)
@@ -57,33 +32,10 @@ def margin_sampling(pred_prob: np.ndarray, k: int) -> Tuple[np.ndarray,
 
 
 def entropy(pred_prob: np.ndarray, k: int) -> Tuple[np.ndarray, np.ndarray]:
-    f"""
-    Rank all the unlabeled samples in an descending order according to
-    the equation 4
-    Parameters
-    ----------
-    pred_prob : np.ndarray
-        prediction probability of x_i with dimension (batch x n_class)
-    k : int
-    Returns
-    -------
-    np.array with dimension (K x 1)  containing the indices of the K
-        most informative samples.
-    np.array with dimension (K x 3) containing the indices, the predicted class
-        and the `en_i` of the k most informative samples
-        column 1: indices
-        column 2: predicted class.
-        column 3: entropy
-    """
-    # calculate the entropy for the pred_prob
-    assert np.round(pred_prob.sum(1).sum()) == pred_prob.shape[
-        0], "pred_prob is not " \
-            "a probability" \
-            " distribution"
-    assert 0 < k <= pred_prob.shape[0], "invalid k value k should be >0 &" \
-                                        "k <=  pred_prob.shape[0"
+
     size = len(pred_prob)
-    entropy_ = - np.nansum(pred_prob * np.log(pred_prob), axis=1)
+    #entropy_ = - np.nansum(pred_prob * np.log(pred_prob), axis=1)
+    entropy_ = - np.nansum( np.exp(pred_prob) * pred_prob, axis=1)
     pred_class = np.argmax(pred_prob, axis=1)
     en_i = np.column_stack((list(range(size)), pred_class, entropy_))
 
@@ -93,7 +45,7 @@ def entropy(pred_prob: np.ndarray, k: int) -> Tuple[np.ndarray, np.ndarray]:
 
 def get_uncertain_samples(pred_prob: np.ndarray, k: int,
                           criteria: str) -> Tuple[np.ndarray, np.ndarray]:
-    print("Uncertain find methods")
+    
     if criteria == 'cl':
         uncertain_samples = least_confidence(pred_prob=pred_prob, k=k)
     elif criteria == 'ms':
@@ -107,7 +59,11 @@ def get_uncertain_samples(pred_prob: np.ndarray, k: int,
 def get_high_confidence_samples(pred_prob: np.ndarray,
                                 delta: float) -> Tuple[np.ndarray, np.ndarray]:
     _, eni = entropy(pred_prob=pred_prob, k=len(pred_prob))
+    print(eni)
     hcs = eni[eni[:, 2] < delta]
+    print("-"*10)
+    print(hcs)
+
     return hcs[:, 0].astype(np.int32), hcs[:, 1].astype(np.int32)
 
 def update_threshold(delta: float, dr: float, t: int) -> float:
