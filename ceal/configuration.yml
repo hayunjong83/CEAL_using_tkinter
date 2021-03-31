@@ -1,0 +1,6 @@
+model: "densenet"
+labeled_data_path: "../data/dl"
+labeled_category: ["cats", "dogs"]
+unlabeled_data_path: "../data/du"
+
+batch_size: 4
