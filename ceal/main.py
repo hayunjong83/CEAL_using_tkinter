@@ -26,12 +26,12 @@ def main():
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
-    labeled_dataset_path = cfg['labeled_data_path']
-    labeled_category = cfg['labeled_category']
+    labeled_dataset_path = cfg['config']['labeled_data_path']
+    labeled_category = cfg['config']['labeled_category']
     labeled_dataset = CustomDataset(labeled_dataset_path, True, 
                                     labeled_category, data_transform)
 
-    unlabeld_dataset_path = cfg['unlabeled_data_path']
+    unlabeld_dataset_path = cfg['config']['unlabeled_data_path']
     unlabeld_dataset = CustomDataset(unlabeld_dataset_path, False,
                                     [], data_transform)
     
@@ -50,7 +50,7 @@ def main():
     train_sampler = SubsetRandomSampler(train_idx)
     val_sampler = SubsetRandomSampler(val_idx)
 
-    batch_size = cfg['batch_szie']
+    batch_size = cfg['config']['batch_szie']
     dl = DataLoader(labeled_dataset, batch_size=batch_size,
                     sampler=train_sampler, num_workers=4)
     dtest = DataLoader(labeled_dataset, batch_size=batch_size,

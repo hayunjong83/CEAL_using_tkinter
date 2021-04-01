@@ -11,6 +11,7 @@ import torch
 import shutil
 import os
 
+def ceal(du, dl, dtest, epochs, )
 def ceal_learning_algorithm(du: DataLoader, 
                             dl: DataLoader,
                             dtest: DataLoader,
