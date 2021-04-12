@@ -1,6 +1,6 @@
 from model import AlexNet
 from torch.utils.data import DataLoader
-from torchvision import transforms
+from torchvision import transforms, models
 from model import AlexNet
 from utils import get_uncertain_samples, get_high_confidence_samples, update_threshold
 from utils import CatsAndDogs, Normalize, RandomCrop, SquarifyImage, ToTensor
@@ -11,7 +11,10 @@ import torch
 import shutil
 import os
 
-def ceal(du, dl, dtest, epochs, )
+def ceal(du, dl, dtest, epochs, k, delta_0, dr, criteria, max_iter):
+    configuration_path = 'configuration.yml'
+     
+
 def ceal_learning_algorithm(du: DataLoader, 
                             dl: DataLoader,
                             dtest: DataLoader,

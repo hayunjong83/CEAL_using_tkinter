@@ -9,6 +9,8 @@ import yaml
 import os
 import numpy as np
 
+from ceal import ceal
+
 def main():
 
     configuration_path = 'configuration.yml' 
