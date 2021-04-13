@@ -21,7 +21,6 @@ def main():
     with open(configuration_path, 'r') as cfg_path:
         cfg = yaml.safe_load(cfg_path)
     
-
     data_transform = transforms.Compose([
         transforms.RandomResizedCrop(224),
         transforms.ToTensor(),
