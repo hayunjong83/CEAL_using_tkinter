@@ -7,14 +7,21 @@ import os
 
 class ImageViewer():
 
-    def __init__(self, window, Images):
+    def __init__(self, window, Images, category):
+
+        self.window = window
         self.canvas = tk.Canvas(window, width=600, height=600)
         self.canvas.grid(row=0, column=0)
 
-        self.previous_button = tk.Button(window, text = "previous image", command=self.to_previous)
+        if len(Images) == 0:
+            tk.messagebox.showinfo(title="error", message="No unlabelled image")
+            self.window.destroy()
+            return  
+
+        self.previous_button = tk.Button(window, text = "<< prev", command=self.to_previous)
         self.previous_button.place(x=50, y = 450)
 
-        self.next_button = tk.Button(window, text = "next image", command=self.to_next)
+        self.next_button = tk.Button(window, text = "next >>", command=self.to_next)
         self.next_button.place(x=150, y = 450)
 
         self.Images = Images
@@ -25,23 +32,26 @@ class ImageViewer():
         self.img = ImageTk.PhotoImage(file=self.Images[self.image_idx])
         self.canvas.itemconfig(self.image_on_canvas, image=self.img)
 
+        self.category = category
         self.radVar = tk.IntVar()
-        self.radiobutton_cat1 = tk.Radiobutton(window, text="cats", variable=self.radVar, value =0)
-        self.radiobutton_cat1.place(x = 50, y = 500)
-        self.radiobutton_cat2 = tk.Radiobutton(window, text="dogs", variable=self.radVar, value =1)
-        self.radiobutton_cat2.place(x = 150, y = 500)
+        self.radioButton = []
+        for i, cat in enumerate(self.category):
+            self.radioButton.append(tk.Radiobutton(window, text=cat, variable=self.radVar, value =i))
+            self.radioButton[i].place(x= 100*i + 50, y=500)
+            
         self.labeling= tk.Button(window, text = "Label image", command=self.label_image)
-        self.labeling.place(x = 250, y = 500)
+        self.labeling.place(x = 250, y = 550)
 
         self.in_path = '../data/labeling_scheduled/'
-        #self.out_path = "../data/new_data/"
         self.out_path = "../data/dl/"
+        if not os.path.isdir(self.out_path):
+            os.makedirs(self.out_path, exist_ok=True)
+        
 
     def to_previous(self):
         if len(self.Images) == 0:
             return 
         self.image_idx = (self.image_idx -1 if self.image_idx > 0  else self.threshold)
-        #print(self.Images[self.image_idx])
         self.img = ImageTk.PhotoImage(file=self.Images[self.image_idx])
         self.canvas.itemconfig(self.image_on_canvas, image=self.img)
         pass
@@ -50,7 +60,6 @@ class ImageViewer():
         if len(self.Images) == 0:
             return 
         self.image_idx = (self.image_idx + 1 if self.image_idx < self.threshold  else 0)
-        #print(self.Images[self.image_idx])
         self.img = ImageTk.PhotoImage(file=self.Images[self.image_idx])
         self.canvas.itemconfig(self.image_on_canvas, image=self.img)
         pass
@@ -61,10 +70,12 @@ class ImageViewer():
             tk.messagebox.showinfo(title="Labeling Done", message="No unlabelled image left")
             return    
         cur_img = self.Images[self.image_idx]
-        if self.radVar.get() == 0:
-            shutil.move(cur_img, self.out_path+'/cats/'+cur_img.split(os.sep)[-1])
-        elif self.radVar.get() == 1:
-            shutil.move(cur_img, self.out_path+'/dogs/'+cur_img.split(os.sep)[-1])
+
+        class_name = self.category[self.radVar.get()]
+        dst_dir = os.path.join(self.out_path, class_name)
+        if not os.path.isdir(dst_dir):
+            os.makedirs(dst_dir, exist_ok=True)
+        shutil.move(cur_img, os.path.join(dst_dir, cur_img.split(os.sep)[-1]))
         self.renew_list()
 
     def renew_list(self):
@@ -75,15 +86,18 @@ class ImageViewer():
             self.canvas.delete('all')
             tk.messagebox.showinfo(title="Labeling Done", message="No unlabelled image left")
             return
+        
+        if self.image_idx >= self.threshold:
+            self.image_idx = self.threshold
         self.img = ImageTk.PhotoImage(file=self.Images[self.image_idx])
+        
         self.canvas.itemconfig(self.image_on_canvas, image=self.img)
 
-def main():
-    files = glob('../data/labeling_scheduled/'+'*.jpg')
+def labeling(scheduling_path, category):
+    files = glob(os.path.join(scheduling_path, '*.jpg'))
     window = tk.Tk()
-    window.title("Images which needs labeling")
-    ImageViewer(window, files)
-    window.mainloop()
+    window.title("Images which need labeling")
+    window.resizable(width=False, height=False)
 
-if __name__ == '__main__':
-    main()
+    ImageViewer(window, files, category)
+    window.mainloop()
