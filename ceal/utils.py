@@ -21,24 +21,17 @@ def margin_sampling(pred_prob: np.ndarray, k: int) -> Tuple[np.ndarray,
     margin = np.diff(np.abs(np.sort(pred_prob, axis=1)[:, ::-1][:, :2]))
     pred_class = np.argmax(pred_prob, axis=1)
     ms_i = np.column_stack((list(range(size)), pred_class, margin))
-
-    # sort ms_i in ascending order according to margin
     ms_i = ms_i[ms_i[:, 2].argsort()]
-
-    # the smaller the margin  means the classifier is more
-    # uncertain about the sample
     return ms_i[:k, 0].astype(np.int32), ms_i[:k]
 
 
 def entropy(pred_prob: np.ndarray, k: int) -> Tuple[np.ndarray, np.ndarray]:
 
     size = len(pred_prob)
-    #entropy_ = - np.nansum(pred_prob * np.log(pred_prob), axis=1)
     entropy_ = - np.nansum( np.exp(pred_prob) * pred_prob, axis=1)
     pred_class = np.argmax(pred_prob, axis=1)
     en_i = np.column_stack((list(range(size)), pred_class, entropy_))
 
-    # Sort en_i in descending order
     en_i = en_i[(-1 * en_i[:, 2]).argsort()]
     return en_i[:k, 0].astype(np.int32), en_i[:k]
 
@@ -58,10 +51,7 @@ def get_uncertain_samples(pred_prob: np.ndarray, k: int,
 def get_high_confidence_samples(pred_prob: np.ndarray,
                                 delta: float) -> Tuple[np.ndarray, np.ndarray]:
     _, eni = entropy(pred_prob=pred_prob, k=len(pred_prob))
-    print(eni)
     hcs = eni[eni[:, 2] < delta]
-    print("-"*10)
-    print(hcs)
 
     return hcs[:, 0].astype(np.int32), hcs[:, 1].astype(np.int32)
 
