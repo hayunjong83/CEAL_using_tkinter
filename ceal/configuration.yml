@@ -1,13 +1,15 @@
 config:
-  model: "densenet"
+  model: "DenseNet"
   labeled_data_path: "../data/dl"
   labeled_category: ["cats", "dogs"]
   unlabeled_data_path: "../data/du"
+  labeling_scheduling_path: "../data/labeling_scheduled"
   batch_size: 4
   epochs: 10
   max_iteration: 2
 
 ceal:
   k: 20
-  delta_0: 0.0005
+  criteria: "cl"
+  delta_0: -2.71
   dr: 0.0033
